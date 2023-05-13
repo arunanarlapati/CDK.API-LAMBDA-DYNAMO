@@ -38,6 +38,18 @@ export class AmplifyInfraStack extends cdk.Stack {
 
     mytable.grantWriteData(myLambdaPut);
 
+    const myLambdaGetbyId = new lambda.Function(this, 'LambdaGetbyId', {
+      runtime: lambda.Runtime.NODEJS_14_X,
+      handler: 'handlerbyId.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, 'lambda')),
+
+      environment:{
+        TABLE_NAME:mytable.tableName,
+      },
+    });
+
+    mytable.grantReadWriteData(myLambdaGetbyId);
+
     const myApiGateway = new apigw.RestApi(this, 'hello-api', {
       defaultCorsPreflightOptions: {
       allowOrigins: apigw.Cors.ALL_ORIGINS,
@@ -52,7 +64,10 @@ export class AmplifyInfraStack extends cdk.Stack {
     resourceForPath("hello")
     .addMethod("POST",new apigw.LambdaIntegration(myLambdaPut))
 
-    
+    /*myApiGateway.root.
+    resourceForPath("hello/id")
+    .addMethod("GET",new apigw.LambdaIntegration(myLambdaGetbyId))*/
+
    
 }}
 
